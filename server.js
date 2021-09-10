@@ -4,8 +4,9 @@ const https = require("https")
 const express = require("express")
 const bodyParser=require("body-parser")
 const validator = require("validator")
-mongoose.connect("mongodb://localhost:27017/TestDB", { useNewUrlParser: true })
+mongoose.connect("mongodb+srv://admin-jun:123321@cluster0.h0wfz.mongodb.net/jundb?retryWrites=true&w=majority", { useNewUrlParser: true })
 const bcrypt = require('bcryptjs')
+const pw = []
 
 // const { response } = require('express')
 // const { count } = require('../models/Employee')
@@ -437,11 +438,10 @@ app.post('/',(req,res)=>{
         const MobileNum= req.body.phone
 
         const saltRounds = 10
-        bcrypt.genSalt(saltRounds, function (err, salt){
-            bcrypt.hash(Password, salt, function(err, hash){
-                    Password == hash;
-            })      
-        })
+        const salt = bcrypt.genSaltSync(saltRounds);
+        const hash = bcrypt.hashSync(Password, salt);
+        console.log(hash);
+        pw[Password] = hash;
 
         
         const data1 = new data({
@@ -511,12 +511,12 @@ app.get('/login.html', (req,res)=>{
 
 app.post('/login.html', (req,res)=>{
     const email = req.body.email
-    const password = req.body.password
+    const Password = req.body.password
 
     data.findOne({Email: email}, function(error, foundUser){
         if(!error){
             if(foundUser){
-                if(foundUser.Password == password){
+                if(bcrypt.compareSync(Password, pw[Password])){
                     res.sendFile(__dirname + "/custtask.html")
                 }
             }
