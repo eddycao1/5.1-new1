@@ -5,7 +5,7 @@ const express = require("express")
 const bodyParser=require("body-parser")
 const validator = require("validator")
 mongoose.connect("mongodb://localhost:27017/TestDB", { useNewUrlParser: true })
-const bcrypt = require('bcryptjs')
+
 
 // const { response } = require('express')
 // const { count } = require('../models/Employee')
@@ -437,12 +437,7 @@ app.post('/',(req,res)=>{
         const MobileNum= req.body.phone
 
         const saltRounds = 10
-        bcrypt.genSalt(saltRounds, function (err, salt){
-            bcrypt.hash(Password, salt, function(err, hash){
-                    Password == hash;
-            })      
-        })
-
+        
         
         const data1 = new data({
             Country: Country,
