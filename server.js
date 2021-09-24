@@ -566,7 +566,7 @@ app.use(passport.session());
 app.set('view engine','ejs');
 
 app.get('/success',function(req,res){
-    res.redirect("https://morning-forest-71134.herokuapp.com/index.html")
+    res.redirect(__dirname + "/index.html")
 });
 
 app.get('/error',function(req,res){
@@ -628,7 +628,7 @@ app.post('/charge', (req, res) => {
             currency: 'usd',
             customer: customer.id,
             description: 'Thank you for your generous donation.'
-        })).then(() => res.render('complete.html'))
+        })).then(() => res.redirect('https://morning-forest-71134.herokuapp.com/complete.html'))
             .catch(err => console.log(err))
     } catch (err) { res.send(err) }
 })
