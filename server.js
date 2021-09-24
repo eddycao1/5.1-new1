@@ -583,8 +583,8 @@ passport.deserializeUser(function(obj,cb){
 
 // google login Oauth 2.0
 
-const GOOGLE_CLIENT_ID = '98776371956-2fe4hfek183fq3bst3jmnsg3l2bd3et8.apps.googleusercontent.com';
-const GOOGLE_CLIENT_SECRET = 'UNMyqijMB5krzI9BFE11nHBn';
+const GOOGLE_CLIENT_ID = '98776371956-b3tbttj5vnqt9cb4p4uif0ja3m4hjbj1.apps.googleusercontent.com';
+const GOOGLE_CLIENT_SECRET = 'X8AEYkw-IGe41r5bpRn6I79_';
 
 passport.use(new GoogleStrategy({
     clientID: GOOGLE_CLIENT_ID,
