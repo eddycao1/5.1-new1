@@ -1,11 +1,16 @@
 const mongoose = require('mongoose')
 const https = require("https")
-
+const session = require('express-session')
 const{ count } = require("console")
 const express = require("express")
 const bodyParser=require("body-parser")
+const path = require('path')
+const passport = require('passport')
+const { createBrotliCompress } = require('zlib')
 const User = require("./models/User.js")
 const { findOneAndUpdate } = require("./models/User.js")
+const stripe = require('stripe')('sk_test_51JcdfPDAXvyPDX6fOgSyamYuNBkv1v58ZSweaOCHFKg63lh9QBM0u8zKqaK04dmFe3eZBhQTAeX9HyoCNswIzkSN00JTZKlIu6')
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
 const validator = require("validator")
 mongoose.connect("mongodb+srv://admin-jun:123321@cluster0.h0wfz.mongodb.net/jundb?retryWrites=true&w=majority", { useNewUrlParser: true })
 const bcrypt = require('bcryptjs')
@@ -357,11 +362,11 @@ const pw = []
 
 const app = express()
 app.use(bodyParser.urlencoded({extended:true}))
-// app.use(express.static("public"))
+app.use(express.static("public"))
 
-// app.get("/",(req,res)=>{
-//     res.sendFile(__dirname + "/registration.html")
-// })
+app.get("/",(req,res)=>{
+    res.sendFile(__dirname + "/registration.html")
+})
 app.route('/experts')
 .get((req, res) =>{
     User.find((err,userList)=>
@@ -513,27 +518,121 @@ app.route('/experts/:id')
     )
 })
 
-// app.get('/login.html', (req,res)=>{
-//     res.sendFile(__dirname + "/login.html")
-// })
+app.get('/login.html', (req,res)=>{
+    res.sendFile(__dirname + "/login.html")
+})
 
-// app.post('/login.html', (req,res)=>{
-//     const email = req.body.email
-//     const Password = req.body.password
+app.post('/login.html', (req,res)=>{
+    const email = req.body.email
+    const Password = req.body.password
 
-//     data.findOne({Email: email}, function(error, foundUser){
-//         if(!error){
-//             if(foundUser){
-//                 if(bcrypt.compareSync(Password, pw[Password])){
-//                     res.sendFile(__dirname + "/custtask.html")
-//                 }
-//             }
-//             else{
-//                 res.sendFile(__dirname + "/Error.html")
-//             }
-//         }
-//     })
-// })
+    data.findOne({Email: email}, function(error, foundUser){
+        if(!error){
+            if(foundUser){
+                //if(bcrypt.compareSync(Password, pw[Password])){
+                    res.sendFile(__dirname + "/custtask.html")
+               // }
+            }
+            else{
+                res.sendFile(__dirname + "/Error.html")
+            }
+        }
+    })
+})
+
+
+// google login express server
+
+app.set('view engine','ejs')
+
+app.use(session({
+    resave:false,
+    saveUninitialized: true,
+    secret:'SECRET'
+}));
+
+app.get('/',function(req,res){
+    res.render('pages/auth');
+});
+
+// google login passport setup
+
+
+var userProfile
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.set('view engine','ejs');
+
+app.get('/success',function(req,res){
+    res.sendFile(__dirname + "/views/index.html")
+});
+
+app.get('/error',function(req,res){
+    res.send('error');
+});
+
+passport.serializeUser(function(user,cb){
+    cb(null, user);
+});
+
+passport.deserializeUser(function(obj,cb){
+    cb(null, obj)
+});
+
+// google login Oauth 2.0
+
+const GOOGLE_CLIENT_ID = '98776371956-2fe4hfek183fq3bst3jmnsg3l2bd3et8.apps.googleusercontent.com';
+const GOOGLE_CLIENT_SECRET = 'UNMyqijMB5krzI9BFE11nHBn';
+
+passport.use(new GoogleStrategy({
+    clientID: GOOGLE_CLIENT_ID,
+    clientSecret: GOOGLE_CLIENT_SECRET,
+    callbackURL:"http://localhost:8000/auth/google/callback"
+    },
+    function(accessToken,refreshToken,profile,done){
+        userProfile = profile;
+        return done(null,userProfile);
+    }
+));
+
+app.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}));
+
+app.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/error'}),
+    function(req,res){
+        res.redirect('/success');
+    }
+);
+
+
+
+
+// stripe payment page
+
+
+
+app.set('view engine', 'ejs');
+app.engine('html', require('ejs').renderFile);
+
+app.use(express.static(path.join(__dirname, './views')));
+
+app.post('/charge', (req, res) => {
+    try {
+        stripe.customers.create({
+            name: req.body.name,
+            email: req.body.email,
+            source: req.body.stripeToken
+        }).then(customer => stripe.charges.create({
+            amount: req.body.amount * 100,
+            currency: 'usd',
+            customer: customer.id,
+            description: 'Thank you for your generous donation.'
+        })).then(() => res.render('complete.html'))
+            .catch(err => console.log(err))
+    } catch (err) { res.send(err) }
+})
+
 
 let port = process.env.PORT;
 if (port == null || port == "") {
