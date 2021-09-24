@@ -566,7 +566,7 @@ app.use(passport.session());
 app.set('view engine','ejs');
 
 app.get('/success',function(req,res){
-    res.sendFile(__dirname + "/views/index.html")
+    res.redirect("https://morning-forest-71134.herokuapp.com/login.html")
 });
 
 app.get('/error',function(req,res){
@@ -589,7 +589,7 @@ const GOOGLE_CLIENT_SECRET = 'UNMyqijMB5krzI9BFE11nHBn';
 passport.use(new GoogleStrategy({
     clientID: GOOGLE_CLIENT_ID,
     clientSecret: GOOGLE_CLIENT_SECRET,
-    callbackURL:"https://morning-forest-71134.herokuapp.com/auth/google/callback"
+    callbackURL:"http://localhost:8000/auth/google/callback"
     },
     function(accessToken,refreshToken,profile,done){
         userProfile = profile;
