@@ -566,7 +566,7 @@ app.use(passport.session());
 app.set('view engine','ejs');
 
 app.get('/success',function(req,res){
-    res.redirect(__dirname + "/index.html")
+    res.redirect("https://morning-forest-71134.herokuapp.com/index.html")
 });
 
 app.get('/error',function(req,res){
