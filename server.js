@@ -589,7 +589,7 @@ const GOOGLE_CLIENT_SECRET = 'UNMyqijMB5krzI9BFE11nHBn';
 passport.use(new GoogleStrategy({
     clientID: GOOGLE_CLIENT_ID,
     clientSecret: GOOGLE_CLIENT_SECRET,
-    callbackURL:"/auth/google/callback"
+    callbackURL:"https://morning-forest-71134.herokuapp.com/auth/google/callback"
     },
     function(accessToken,refreshToken,profile,done){
         userProfile = profile;
